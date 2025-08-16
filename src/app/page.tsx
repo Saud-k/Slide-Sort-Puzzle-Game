@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,15 @@ export default function HomePage() {
       setShowDialog(true);
     }
   };
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/game');
+    }
+  }, [user, loading, router]);
   
-  if (loading) {
+  if (loading || user) {
     return <div className="flex min-h-screen w-full flex-col items-center justify-center">Loading...</div>;
-  }
-  
-  if (user) {
-    router.push('/game');
-    return null;
   }
 
   return (
