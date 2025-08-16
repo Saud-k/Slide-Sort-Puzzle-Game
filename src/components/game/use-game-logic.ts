@@ -5,17 +5,11 @@ import type { Board, Position } from '@/lib/types';
 
 const SHUFFLE_MOVES_MULTIPLIER = 50;
 
-export const useGameLogic = (currentLevel: number) => {
-  const [level, setLevel] = useState(currentLevel);
+export const useGameLogic = (level: number) => {
   const [board, setBoard] = useState<Board>([]);
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
-
-  // When the level prop from the parent component changes, update the internal state.
-  useEffect(() => {
-    setLevel(currentLevel);
-  }, [currentLevel]);
 
   const checkWin = useCallback((currentBoard: Board, boardLevel: number): boolean => {
     if (!currentBoard.length) return false;
@@ -70,13 +64,7 @@ export const useGameLogic = (currentLevel: number) => {
     return shuffledBoard;
   }, [checkWin]);
 
-  const resetGame = useCallback((newLevel?: number) => {
-    const boardLevel = newLevel || level;
-    if (newLevel && newLevel !== level) {
-      setLevel(newLevel);
-      // Let the main effect handle the reset
-      return;
-    }
+  const resetGame = useCallback((newLevel: number) => {
     setIsInitializing(true);
     setIsWon(false);
     setMoves(0);
@@ -84,24 +72,24 @@ export const useGameLogic = (currentLevel: number) => {
     const solved = (() => {
       const newBoard: Board = [];
       let count = 1;
-      for (let i = 0; i < boardLevel; i++) {
+      for (let i = 0; i < newLevel; i++) {
         newBoard.push([]);
-        for (let j = 0; j < boardLevel; j++) {
+        for (let j = 0; j < newLevel; j++) {
           newBoard[i].push(count);
           count++;
         }
       }
-      newBoard[boardLevel - 1][boardLevel - 1] = null;
+      newBoard[newLevel - 1][newLevel - 1] = null;
       return newBoard;
     })();
 
-    const shuffled = shuffleBoard(solved, boardLevel);
+    const shuffled = shuffleBoard(solved, newLevel);
     setBoard(shuffled);
     setTimeout(() => setIsInitializing(false), 300);
-  }, [level, shuffleBoard]);
+  }, [shuffleBoard]);
   
   useEffect(() => {
-    resetGame();
+    resetGame(level);
   }, [level, resetGame]);
 
   const moveBlock = (row: number, col: number) => {
@@ -138,5 +126,5 @@ export const useGameLogic = (currentLevel: number) => {
     }
   };
 
-  return { board, moves, isWon, isInitializing, moveBlock, resetGame, setLevel };
+  return { board, moves, isWon, isInitializing, moveBlock, resetGame };
 };

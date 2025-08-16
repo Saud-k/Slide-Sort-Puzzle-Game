@@ -2,13 +2,11 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "../ui/button";

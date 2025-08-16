@@ -30,10 +30,10 @@ export function GameBoard({ level, board, isInitializing, isWon, moveBlock }: Ga
   if (isInitializing || !board.length) {
     return (
       <div 
-        className="grid gap-2 p-4 bg-primary/10 rounded-lg shadow-inner"
+        className="grid gap-1 p-2 bg-primary/10 rounded-lg shadow-inner"
         style={{
           gridTemplateColumns: `repeat(${level}, minmax(0, 1fr))`,
-          width: 'clamp(300px, 90vw, 600px)',
+          width: 'clamp(280px, 90vw, 450px)',
           aspectRatio: '1 / 1',
         }}
       >
@@ -48,10 +48,10 @@ export function GameBoard({ level, board, isInitializing, isWon, moveBlock }: Ga
 
   return (
     <div
-      className="grid gap-2 p-4 bg-primary/10 rounded-lg shadow-inner transition-all duration-300"
+      className="grid gap-1 p-2 bg-primary/10 rounded-lg shadow-inner transition-all duration-300"
       style={{
         gridTemplateColumns: `repeat(${level}, minmax(0, 1fr))`,
-        width: 'clamp(300px, 90vw, 600px)',
+        width: 'clamp(280px, 90vw, 450px)',
         aspectRatio: '1 / 1',
       }}
       aria-label="Game Board"
@@ -71,7 +71,7 @@ export function GameBoard({ level, board, isInitializing, isWon, moveBlock }: Ga
                 onClick={() => moveBlock(rowIndex, colIndex)}
                 disabled={isHole || isWon}
                 className={cn(
-                  'w-full h-full text-lg md:text-2xl font-bold rounded-md transition-all duration-300 ease-in-out transform-gpu focus:ring-accent focus:ring-offset-2 focus:ring-2',
+                  'w-full h-full text-base md:text-xl font-bold rounded-md transition-all duration-300 ease-in-out transform-gpu focus:ring-accent focus:ring-offset-2 focus:ring-2',
                   isHole ? 'opacity-0 cursor-default' : 'shadow-md hover:shadow-lg',
                   isMovable ? 'cursor-pointer hover:bg-accent hover:text-accent-foreground' : 'cursor-not-allowed',
                   isWon && !isHole ? 'bg-green-500/80 text-white cursor-not-allowed' : 'bg-secondary text-secondary-foreground',

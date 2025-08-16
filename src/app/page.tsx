@@ -19,7 +19,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const [level, setLevel] = useState(3);
   const [maxLevel, setMaxLevel] = useState(3);
-  const { board, moves, isWon, isInitializing, moveBlock, resetGame, setLevel: setGameLevel } = useGameLogic(level);
+  const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,7 +30,6 @@ export default function Home() {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setLevel(userData.currentLevel || 3);
-          setGameLevel(userData.currentLevel || 3);
           setMaxLevel(userData.maxLevel || 3);
         } else {
           // New user, set initial data
@@ -46,18 +45,14 @@ export default function Home() {
     if (!loading) {
       fetchUserProgress();
     }
-  }, [user, loading, setGameLevel]);
+  }, [user, loading]);
 
   const handleNextLevel = async () => {
     const nextLevel = level + 1;
     if (nextLevel <= 10) { // Max level 10
       const newMaxLevel = Math.max(maxLevel, nextLevel);
-      setLevel(nextLevel);
-      setMaxLevel(newMaxLevel);
       if(user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
-        // Also update leaderboard
+        // Save old level's score first
         const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
         await setDoc(leaderboardDocRef, {
           userId: user.uid,
@@ -67,8 +62,12 @@ export default function Home() {
           timestamp: new Date(),
         }, {merge: true});
 
+        // Then update user's current level
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
       }
-      resetGame(nextLevel);
+      setLevel(nextLevel);
+      setMaxLevel(newMaxLevel);
     }
   };
   
@@ -87,10 +86,10 @@ export default function Home() {
 
   if (!user) {
     return (
-      <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 md:p-8">
-        <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
+      <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-sm mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
+            <CardTitle className="text-3xl font-headline tracking-tight">
               Welcome to Slide Sort!
             </CardTitle>
             <CardDescription>
@@ -99,10 +98,10 @@ export default function Home() {
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
             <Link href="/signin" passHref>
-              <Button size="lg">Sign In</Button>
+              <Button>Sign In</Button>
             </Link>
             <Link href="/signup" passHref>
-              <Button variant="outline" size="lg">Sign Up</Button>
+              <Button variant="outline">Sign Up</Button>
             </Link>
              <Link href="/leaderboard" passHref>
               <Button variant="link">View Leaderboard</Button>
@@ -114,36 +113,36 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 md:p-8">
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
        <div className="absolute top-4 right-4 flex items-center gap-4">
         <div className="text-right">
-          <p className="font-semibold">{user.displayName || 'Welcome'}</p>
-          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <p className="font-semibold text-sm">{user.displayName || 'Welcome'}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
         </div>
         <Avatar>
           <AvatarImage src={user.photoURL || undefined} />
           <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
         </Avatar>
-        <Button variant="ghost" onClick={handleSignOut}>Sign Out</Button>
+        <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
         <Link href="/leaderboard" passHref>
-            <Button variant="link">Leaderboard</Button>
+            <Button variant="link" size="sm">Leaderboard</Button>
         </Link>
       </div>
-      <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
+      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
+        <CardHeader className="text-center px-4 pt-4 pb-2">
+          <CardTitle className="text-2xl font-headline tracking-tight">
             Slide Sort Puzzle
           </CardTitle>
-          <CardDescription>
-            Arrange the numbers in order. Click a tile to move it to the empty space.
+          <CardDescription className="text-sm">
+            Arrange the numbers in order.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-6">
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-              <div className="flex items-center gap-2">
+        <CardContent className="flex flex-col items-center gap-4 p-4">
+          <div className="flex items-center gap-4 w-full justify-center">
+              <div className="flex items-center gap-2 text-sm">
                 <p>Level: {level} x {level}</p>
               </div>
-              <div className="font-mono text-lg p-2 px-4 rounded-md bg-muted">
+              <div className="font-mono text-base p-2 px-3 rounded-md bg-muted">
                 Moves: <span className="font-bold">{moves}</span>
               </div>
           </div>
@@ -164,10 +163,10 @@ export default function Home() {
         moves={moves} 
         onNextLevel={handleNextLevel}
         onPlayAgain={handlePlayAgain}
-        isLastLevel={level >= maxLevel}
+        isLastLevel={level >= 10}
       />
 
-      <footer className="mt-8 text-center text-sm text-muted-foreground">
+      <footer className="mt-6 text-center text-xs text-muted-foreground">
         <p>A classic sliding puzzle game. Built for fun.</p>
       </footer>
     </main>
