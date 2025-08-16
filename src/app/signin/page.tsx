@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { getFriendlyErrorMessage } from "@/lib/utils";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -27,11 +27,11 @@ export default function SignIn() {
       toast({ title: "Success", description: "Signed in successfully!" });
       router.push("/game");
     } catch (error: any) {
-      const errorMessage = error.message || "An unknown error occurred.";
-      setError(errorMessage);
+      const friendlyMessage = getFriendlyErrorMessage(error.code);
+      setError(friendlyMessage);
       toast({
         title: "Sign-In Error",
-        description: errorMessage,
+        description: friendlyMessage,
         variant: "destructive",
       });
     }
