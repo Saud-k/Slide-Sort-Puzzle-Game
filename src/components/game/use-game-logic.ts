@@ -12,12 +12,12 @@ export const useGameLogic = (initialLevel: number) => {
   const [isWon, setIsWon] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  const checkWin = useCallback((currentBoard: Board): boolean => {
+  const checkWin = useCallback((currentBoard: Board, boardLevel: number): boolean => {
     if (!currentBoard.length) return false;
     let count = 1;
-    for (let i = 0; i < level; i++) {
-      for (let j = 0; j < level; j++) {
-        if (i === level - 1 && j === level - 1) {
+    for (let i = 0; i < boardLevel; i++) {
+      for (let j = 0; j < boardLevel; j++) {
+        if (i === boardLevel - 1 && j === boardLevel - 1) {
           if (currentBoard[i][j] !== null) return false;
         } else {
           if (currentBoard[i][j] !== count) return false;
@@ -26,25 +26,11 @@ export const useGameLogic = (initialLevel: number) => {
       }
     }
     return true;
-  }, [level]);
+  }, []);
 
-  const createSolvedBoard = useCallback((): Board => {
-    const newBoard: Board = [];
-    let count = 1;
-    for (let i = 0; i < level; i++) {
-      newBoard.push([]);
-      for (let j = 0; j < level; j++) {
-        newBoard[i].push(count);
-        count++;
-      }
-    }
-    newBoard[level - 1][level - 1] = null;
-    return newBoard;
-  }, [level]);
-
-  const findHole = (currentBoard: Board): Position | null => {
-    for (let i = 0; i < level; i++) {
-      for (let j = 0; j < level; j++) {
+  const findHole = (currentBoard: Board, boardLevel: number): Position | null => {
+    for (let i = 0; i < boardLevel; i++) {
+      for (let j = 0; j < boardLevel; j++) {
         if (currentBoard[i][j] === null) {
           return { row: i, col: j };
         }
@@ -53,17 +39,17 @@ export const useGameLogic = (initialLevel: number) => {
     return null;
   };
 
-  const shuffleBoard = useCallback((solvedBoard: Board): Board => {
+  const shuffleBoard = useCallback((solvedBoard: Board, boardLevel: number): Board => {
     let shuffledBoard = JSON.parse(JSON.stringify(solvedBoard));
-    let hole = findHole(shuffledBoard)!;
+    let hole = findHole(shuffledBoard, boardLevel)!;
 
-    for (let i = 0; i < level * level * SHUFFLE_MOVES_MULTIPLIER; i++) {
+    for (let i = 0; i < boardLevel * boardLevel * SHUFFLE_MOVES_MULTIPLIER; i++) {
       const neighbors: Position[] = [];
       const { row, col } = hole;
       if (row > 0) neighbors.push({ row: row - 1, col });
-      if (row < level - 1) neighbors.push({ row: row + 1, col });
+      if (row < boardLevel - 1) neighbors.push({ row: row + 1, col });
       if (col > 0) neighbors.push({ row, col: col - 1 });
-      if (col < level - 1) neighbors.push({ row, col: col + 1 });
+      if (col < boardLevel - 1) neighbors.push({ row, col: col + 1 });
       
       const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
       
@@ -72,15 +58,15 @@ export const useGameLogic = (initialLevel: number) => {
       hole = randomNeighbor;
     }
     
-    if (checkWin(shuffledBoard)) {
-        return shuffleBoard(solvedBoard);
+    if (checkWin(shuffledBoard, boardLevel)) {
+        return shuffleBoard(solvedBoard, boardLevel);
     }
 
     return shuffledBoard;
-  }, [level, checkWin]);
+  }, [checkWin]);
 
   const resetGame = useCallback((newLevel?: number) => {
-    const currentLevel = newLevel || level;
+    const boardLevel = newLevel || level;
     if (newLevel) {
       setLevel(newLevel);
     }
@@ -88,23 +74,21 @@ export const useGameLogic = (initialLevel: number) => {
     setIsWon(false);
     setMoves(0);
     
-    // Temporarily update level for board creation if newLevel is provided
-    const tempLevel = newLevel || level;
     const solved = (() => {
       const newBoard: Board = [];
       let count = 1;
-      for (let i = 0; i < tempLevel; i++) {
+      for (let i = 0; i < boardLevel; i++) {
         newBoard.push([]);
-        for (let j = 0; j < tempLevel; j++) {
+        for (let j = 0; j < boardLevel; j++) {
           newBoard[i].push(count);
           count++;
         }
       }
-      newBoard[tempLevel - 1][tempLevel - 1] = null;
+      newBoard[boardLevel - 1][boardLevel - 1] = null;
       return newBoard;
     })();
 
-    const shuffled = shuffleBoard(solved);
+    const shuffled = shuffleBoard(solved, boardLevel);
     setBoard(shuffled);
     setTimeout(() => setIsInitializing(false), 300);
   }, [level, shuffleBoard]);
@@ -116,7 +100,7 @@ export const useGameLogic = (initialLevel: number) => {
   const moveBlock = (row: number, col: number) => {
     if (isWon || isInitializing) return;
 
-    const hole = findHole(board)!;
+    const hole = findHole(board, level)!;
     const clicked = { row, col };
 
     if (clicked.row !== hole.row && clicked.col !== hole.col) {
@@ -142,7 +126,7 @@ export const useGameLogic = (initialLevel: number) => {
     const newMoves = moves + 1;
     setMoves(newMoves);
 
-    if (checkWin(newBoard)) {
+    if (checkWin(newBoard, level)) {
       setIsWon(true);
     }
   };
