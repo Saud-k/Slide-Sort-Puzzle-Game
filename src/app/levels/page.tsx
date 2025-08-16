@@ -15,7 +15,7 @@ export default function LevelsPage() {
   const { user, loading } = useAuth();
   
   if (loading) {
-      return <div className="flex min-h-screen w-full flex-col items-center justify-center">Loading levels...</div>;
+      return <div className="flex h-screen w-full flex-col items-center justify-center">Loading levels...</div>;
   }
 
   const levels = Array.from({ length: TOTAL_LEVELS - STARTING_LEVEL + 1 }, (_, i) => i + STARTING_LEVEL);
@@ -25,8 +25,8 @@ export default function LevelsPage() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
-       <header className="w-full max-w-2xl mx-auto mb-4">
+    <main className="flex h-screen w-full flex-col items-center justify-center p-4 md:p-6 lg:p-8">
+       <header className="w-full max-w-2xl mx-auto mb-4 self-start absolute top-4 left-1/2 -translate-x-1/2">
         <Link href="/game" passHref>
           <Button variant="outline">Back to Game</Button>
         </Link>

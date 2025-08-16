@@ -78,23 +78,23 @@ export default function GamePage() {
   };
 
   if (loading) {
-    return <div className="flex min-h-screen w-full flex-col items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen w-full flex-col items-center justify-center">Loading...</div>;
   }
   
   return (
-    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
-       <header className="w-full max-w-md mx-auto flex justify-between items-center mb-4">
+    <main className="flex h-screen w-full flex-col items-center p-2 sm:p-4">
+       <header className="w-full max-w-md mx-auto flex justify-between items-center mb-2">
         <Link href="/levels" passHref>
-          <Button variant="outline">Choose Level</Button>
+          <Button variant="outline" size="sm">Choose Level</Button>
         </Link>
         { user && (
             <div className="flex items-center gap-2 sm:gap-4">
                 <div className="flex items-center gap-2">
-                  <Avatar>
+                  <Avatar className="h-8 w-8">
                       <AvatarImage src={user.photoURL || undefined} />
                       <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden sm:inline text-sm font-medium">{user.displayName}</span>
+                  <span className="hidden sm:inline text-xs font-medium">{user.displayName}</span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
                 <Link href="/leaderboard" passHref>
@@ -105,47 +105,49 @@ export default function GamePage() {
         { !user && (
             <div className="flex items-center gap-2">
                 <Link href="/leaderboard" passHref>
-                    <Button variant="outline">Leaderboard</Button>
+                    <Button variant="outline" size="sm">Leaderboard</Button>
                 </Link>
                 <Link href="/signin" passHref>
-                    <Button>Sign In</Button>
+                    <Button size="sm">Sign In</Button>
                 </Link>
             </div>
         )}
       </header>
 
-      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm mt-8 sm:mt-0">
-        <CardHeader className="text-center p-4 md:p-6">
-          <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
-            Slide Sort Puzzle
-          </CardTitle>
-          <CardDescription className="text-sm">
-            Arrange the numbers in order.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 p-4 md:p-6">
-          <div className="flex items-center gap-4 w-full justify-center">
-              <div className="flex items-center gap-2 text-base">
-                <p>Size: {level}x{level}</p>
-              </div>
-              <div className="font-mono text-lg p-2 px-4 rounded-md bg-muted">
-                Moves: <span className="font-bold">{moves}</span>
-              </div>
-          </div>
-          
-          <GameBoard 
-            level={level}
-            board={board}
-            isInitializing={isInitializing}
-            isWon={isWon}
-            moveBlock={moveBlock}
-          />
-           <Button variant="outline" onClick={resetCurrentLevel} className="mt-2">
-            Reset
-          </Button>
+      <div className="flex-grow flex items-center justify-center w-full">
+        <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
+            <CardHeader className="text-center p-3 md:p-4">
+            <CardTitle className="text-xl md:text-2xl font-headline tracking-tight">
+                Slide Sort Puzzle
+            </CardTitle>
+            <CardDescription className="text-xs">
+                Arrange the numbers in order.
+            </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-2 p-3 md:p-4">
+            <div className="flex items-center gap-4 w-full justify-center">
+                <div className="flex items-center gap-2 text-sm">
+                    <p>Size: {level}x{level}</p>
+                </div>
+                <div className="font-mono text-base p-1 px-3 rounded-md bg-muted">
+                    Moves: <span className="font-bold">{moves}</span>
+                </div>
+            </div>
+            
+            <GameBoard 
+                level={level}
+                board={board}
+                isInitializing={isInitializing}
+                isWon={isWon}
+                moveBlock={moveBlock}
+            />
+            <Button variant="outline" onClick={resetCurrentLevel} className="mt-2" size="sm">
+                Reset
+            </Button>
 
-        </CardContent>
-      </Card>
+            </CardContent>
+        </Card>
+      </div>
       
       <WinDialog 
         isOpen={isWon} 
@@ -155,7 +157,7 @@ export default function GamePage() {
         isLastLevel={level >= 10}
       />
 
-      <footer className="mt-6 text-center text-xs text-muted-foreground">
+      <footer className="w-full text-center text-xs text-muted-foreground p-2">
         <p>A classic sliding puzzle game. Built for fun.</p>
       </footer>
     </main>

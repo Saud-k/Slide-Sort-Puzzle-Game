@@ -84,7 +84,7 @@ export default function LeaderboardPage() {
 
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
+    <main className="flex h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
       <header className="w-full max-w-4xl mx-auto mb-4">
         <Link href="/" passHref>
           <Button variant="outline">Back to Home</Button>

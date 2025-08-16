@@ -22,11 +22,11 @@ export default function HomePage() {
   };
 
   if (loading) {
-    return <div className="flex min-h-screen w-full flex-col items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen w-full flex-col items-center justify-center">Loading...</div>;
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-background">
+    <main className="flex h-screen w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-sm mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
          <CardHeader className="text-center p-6">
           <CardTitle className="text-3xl md:text-4xl font-headline tracking-tighter">
