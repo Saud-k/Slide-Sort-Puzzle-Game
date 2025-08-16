@@ -21,7 +21,6 @@ export default function Home() {
   const router = useRouter();
 
   const [level, setLevel] = useState(3);
-  const [maxLevel, setMaxLevel] = useState(3);
   
   const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
   
@@ -29,66 +28,18 @@ export default function Home() {
     const levelFromQuery = searchParams.get('level');
     if (levelFromQuery) {
       const newLevel = parseInt(levelFromQuery, 10);
-      if (!isNaN(newLevel)) {
+      if (!isNaN(newLevel) && newLevel >= 3 && newLevel <= 10) {
         setLevel(newLevel);
       }
     }
   }, [searchParams]);
 
-
-  useEffect(() => {
-    const fetchUserProgress = async () => {
-      if (user && navigator.onLine) {
-        const userDocRef = doc(db, 'users', user.uid);
-        try {
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const currentLevel = userData.currentLevel || 3;
-            const fetchedMaxLevel = userData.maxLevel || 3;
-            
-            const levelFromQuery = searchParams.get('level');
-            const queryLevel = levelFromQuery ? parseInt(levelFromQuery, 10) : NaN;
-            
-            if (!isNaN(queryLevel)) {
-                setLevel(queryLevel);
-            } else {
-                setLevel(currentLevel);
-            }
-            setMaxLevel(fetchedMaxLevel);
-
-          } else {
-            await setDoc(userDocRef, { 
-              email: user.email, 
-              displayName: user.displayName || 'Anonymous',
-              currentLevel: 3, 
-              maxLevel: 3 
-            });
-            setLevel(3);
-            setMaxLevel(3);
-          }
-        } catch (e) {
-            console.error("Error fetching user progress:", e);
-        }
-      } else if (!user && !loading) {
-         setLevel(3);
-         setMaxLevel(3);
-      }
-    };
-
-    if (!loading) {
-      fetchUserProgress();
-    }
-  }, [user, loading, searchParams]);
-
-  const handleNextLevel = useCallback(async () => {
-    const nextLevel = level + 1;
-    if (nextLevel > 10) return; 
-
+  const saveProgress = useCallback(async () => {
     if (user && navigator.onLine) {
         try {
             const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
             const currentBestDoc = await getDoc(leaderboardDocRef);
+
             if (!currentBestDoc.exists() || moves < currentBestDoc.data().moves) {
                 await setDoc(leaderboardDocRef, {
                     userId: user.uid,
@@ -98,21 +49,24 @@ export default function Home() {
                     timestamp: new Date(),
                 });
             }
-            
-            const newMaxLevel = Math.max(maxLevel, nextLevel);
-            const userDocRef = doc(db, 'users', user.uid);
-            await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
-            setMaxLevel(newMaxLevel);
         } catch (e) {
-            console.error("Error saving progress:", e);
+            console.error("Error saving leaderboard score:", e);
         }
     }
-    setLevel(nextLevel);
-  }, [level, user, moves, maxLevel]);
+  }, [user, level, moves]);
+
+
+  const handleNextLevel = useCallback(() => {
+    saveProgress();
+    const nextLevel = level + 1;
+    if (nextLevel > 10) return;
+    router.push(`/?level=${nextLevel}`);
+  }, [level, saveProgress, router]);
   
   const handlePlayAgain = useCallback(() => {
+    saveProgress();
     resetGame(level);
-  }, [level, resetGame]);
+  }, [level, resetGame, saveProgress]);
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -171,7 +125,7 @@ export default function Home() {
           <Button variant="outline">Choose Level</Button>
         </Link>
       </div>
-      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm mt-12 md:mt-0">
+      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm mt-16 md:mt-0">
         <CardHeader className="text-center p-4 md:p-6">
           <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
             Slide Sort Puzzle
