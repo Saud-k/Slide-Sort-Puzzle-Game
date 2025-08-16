@@ -27,6 +27,7 @@ export default function LevelsPage() {
         try {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
+            // We still fetch maxLevel to color the completed levels, but it won't be used for locking.
             setMaxLevel(userDoc.data().maxLevel || STARTING_LEVEL);
           }
         } catch (error) {
@@ -55,9 +56,7 @@ export default function LevelsPage() {
   const levels = Array.from({ length: TOTAL_LEVELS - STARTING_LEVEL + 1 }, (_, i) => i + STARTING_LEVEL);
 
   const handleLevelSelect = (level: number) => {
-    if (level <= maxLevel) {
-      router.push(`/?level=${level}`);
-    }
+    router.push(`/?level=${level}`);
   };
 
   return (
@@ -73,24 +72,21 @@ export default function LevelsPage() {
             Select a Level
           </CardTitle>
           <CardDescription>
-            Completed levels are green. Click a level to play.
+            Completed levels are green. Click any level to play.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {levels.map((level) => {
-              const isUnlocked = level <= maxLevel;
               const isCompleted = level < maxLevel;
               
               return (
                 <Button
                   key={level}
                   onClick={() => handleLevelSelect(level)}
-                  disabled={!isUnlocked}
                   className={cn(
                     "h-24 text-2xl font-bold",
                     isCompleted && "bg-green-600 hover:bg-green-700 text-white",
-                    !isUnlocked && "bg-gray-400 text-gray-700 cursor-not-allowed",
                   )}
                 >
                   Level {level}

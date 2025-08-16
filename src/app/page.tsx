@@ -25,26 +25,16 @@ export default function Home() {
   
   const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
   
-  const handleSetLevel = (newLevel: number) => {
-    if (newLevel <= maxLevel) {
-      setLevel(newLevel);
-    }
-  };
-
   useEffect(() => {
     const levelFromQuery = searchParams.get('level');
     if (levelFromQuery) {
       const newLevel = parseInt(levelFromQuery, 10);
       if (!isNaN(newLevel)) {
-         if (newLevel <= maxLevel) {
-          setLevel(newLevel);
-        } else {
-          // If user tries to access a level they haven't unlocked, redirect them
-          router.push('/');
-        }
+        // Now sets the level without checking if it's "unlocked"
+        setLevel(newLevel);
       }
     }
-  }, [searchParams, maxLevel, router]);
+  }, [searchParams]);
 
 
   useEffect(() => {
@@ -58,11 +48,11 @@ export default function Home() {
             const currentLevel = userData.currentLevel || 3;
             const fetchedMaxLevel = userData.maxLevel || 3;
             
-            // Set initial level from query param if valid, otherwise from DB
             const levelFromQuery = searchParams.get('level');
             const queryLevel = levelFromQuery ? parseInt(levelFromQuery, 10) : NaN;
             
-            if (!isNaN(queryLevel) && queryLevel <= fetchedMaxLevel) {
+            // Set level from query param if present, otherwise from DB (or default)
+            if (!isNaN(queryLevel)) {
                 setLevel(queryLevel);
             } else {
                 setLevel(currentLevel);
