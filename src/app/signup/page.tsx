@@ -27,21 +27,19 @@ export default function SignUp() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
       
-      // Create a user document in Firestore
       await setDoc(doc(db, "users", userCredential.user.uid), {
         displayName,
         email,
-        currentLevel: 3,
-        maxLevel: 3,
       });
 
       toast({ title: "Success", description: "Account created successfully!" });
       router.push("/game");
     } catch (error: any) {
-      setError(error.message);
+      const errorMessage = error.message || "An unknown error occurred.";
+      setError(errorMessage);
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Sign-Up Error",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -86,7 +84,7 @@ export default function SignUp() {
                 required
               />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-destructive text-sm mt-2">{error}</p>}
             <Button type="submit" className="w-full">
               Sign Up
             </Button>

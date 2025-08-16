@@ -27,10 +27,11 @@ export default function SignIn() {
       toast({ title: "Success", description: "Signed in successfully!" });
       router.push("/game");
     } catch (error: any) {
-      setError(error.message);
+      const errorMessage = error.message || "An unknown error occurred.";
+      setError(errorMessage);
       toast({
-        title: "Error",
-        description: "Failed to sign in. Please check your credentials.",
+        title: "Sign-In Error",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -65,7 +66,7 @@ export default function SignIn() {
                 required
               />
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-destructive text-sm mt-2">{error}</p>}
             <Button type="submit" className="w-full">
               Sign In
             </Button>
