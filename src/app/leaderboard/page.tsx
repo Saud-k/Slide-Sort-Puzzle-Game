@@ -88,16 +88,16 @@ export default function LeaderboardPage() {
 
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-8">
+    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
        <div className="absolute top-4 left-4">
         <Link href="/" passHref>
           <Button variant="outline">Back to Game</Button>
         </Link>
       </div>
       <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-        <CardHeader className="flex flex-col md:flex-row items-center justify-between text-center md:text-left">
+        <CardHeader className="flex flex-col md:flex-row items-center justify-between text-center md:text-left p-4 md:p-6">
           <div>
-            <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
+            <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
               Leaderboard
             </CardTitle>
             <CardDescription>
@@ -118,7 +118,7 @@ export default function LeaderboardPage() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6">
           {loading ? (
             <div className="flex justify-center items-center h-40">
                 <p>Loading leaderboard...</p>

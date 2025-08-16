@@ -131,15 +131,15 @@ export default function Home() {
     return (
       <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
         <Card className="w-full max-w-sm mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-headline tracking-tight">
+          <CardHeader className="text-center p-4 md:p-6">
+            <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
               Welcome to Slide Sort!
             </CardTitle>
             <CardDescription>
               Sign in to save your progress and compete on the leaderboard.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col items-center gap-4 p-4 md:p-6">
             <Link href="/signin" passHref>
               <Button>Sign In</Button>
             </Link>
@@ -156,10 +156,10 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4">
-       <div className="absolute top-4 right-4 flex items-center gap-4">
-        <div className="text-right">
-          <p className="font-semibold text-sm">{user.displayName || 'Welcome'}</p>
+    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 md:p-6 lg:p-8">
+       <div className="absolute top-4 right-4 flex items-center gap-2 sm:gap-4">
+        <div className="text-right hidden sm:block">
+          <p className="font-semibold text-sm truncate">{user.displayName || 'Welcome'}</p>
         </div>
         <Avatar>
           <AvatarImage src={user.photoURL || undefined} />
@@ -176,20 +176,20 @@ export default function Home() {
         </Link>
       </div>
       <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center px-4 pt-4 pb-2">
-          <CardTitle className="text-2xl font-headline tracking-tight">
+        <CardHeader className="text-center p-4 md:p-6">
+          <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
             Slide Sort Puzzle
           </CardTitle>
           <CardDescription className="text-sm">
             Arrange the numbers in order.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 p-4">
+        <CardContent className="flex flex-col items-center gap-4 p-4 md:p-6">
           <div className="flex items-center gap-4 w-full justify-center">
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-base">
                 <p>Size: {level} x {level}</p>
               </div>
-              <div className="font-mono text-base p-2 px-3 rounded-md bg-muted">
+              <div className="font-mono text-lg p-2 px-4 rounded-md bg-muted">
                 Moves: <span className="font-bold">{moves}</span>
               </div>
           </div>

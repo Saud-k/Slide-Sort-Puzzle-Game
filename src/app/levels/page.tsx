@@ -60,22 +60,22 @@ export default function LevelsPage() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-8">
+    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
       <div className="absolute top-4 left-4">
         <Link href="/" passHref>
           <Button variant="outline">Back to Game</Button>
         </Link>
       </div>
       <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
+        <CardHeader className="text-center p-4 md:p-6">
+          <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
             Select a Level
           </CardTitle>
           <CardDescription>
             Completed levels are green. Click any level to play.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {levels.map((level) => {
               const isCompleted = level < maxLevel;
@@ -85,7 +85,7 @@ export default function LevelsPage() {
                   key={level}
                   onClick={() => handleLevelSelect(level)}
                   className={cn(
-                    "h-24 text-2xl font-bold",
+                    "h-20 md:h-24 text-xl md:text-2xl font-bold",
                     isCompleted && "bg-green-600 hover:bg-green-700 text-white",
                   )}
                 >
