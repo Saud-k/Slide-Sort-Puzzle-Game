@@ -5,12 +5,17 @@ import type { Board, Position } from '@/lib/types';
 
 const SHUFFLE_MOVES_MULTIPLIER = 50;
 
-export const useGameLogic = (initialLevel: number) => {
-  const [level, setLevel] = useState(initialLevel);
+export const useGameLogic = (currentLevel: number) => {
+  const [level, setLevel] = useState(currentLevel);
   const [board, setBoard] = useState<Board>([]);
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+
+  // When the level prop from the parent component changes, update the internal state.
+  useEffect(() => {
+    setLevel(currentLevel);
+  }, [currentLevel]);
 
   const checkWin = useCallback((currentBoard: Board, boardLevel: number): boolean => {
     if (!currentBoard.length) return false;
@@ -67,8 +72,10 @@ export const useGameLogic = (initialLevel: number) => {
 
   const resetGame = useCallback((newLevel?: number) => {
     const boardLevel = newLevel || level;
-    if (newLevel) {
+    if (newLevel && newLevel !== level) {
       setLevel(newLevel);
+      // Let the main effect handle the reset
+      return;
     }
     setIsInitializing(true);
     setIsWon(false);
@@ -94,7 +101,7 @@ export const useGameLogic = (initialLevel: number) => {
   }, [level, shuffleBoard]);
   
   useEffect(() => {
-    resetGame(level);
+    resetGame();
   }, [level, resetGame]);
 
   const moveBlock = (row: number, col: number) => {
@@ -131,5 +138,5 @@ export const useGameLogic = (initialLevel: number) => {
     }
   };
 
-  return { board, moves, isWon, isInitializing, moveBlock, resetGame, level, setLevel };
+  return { board, moves, isWon, isInitializing, moveBlock, resetGame, setLevel };
 };
