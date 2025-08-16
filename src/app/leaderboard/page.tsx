@@ -18,30 +18,29 @@ interface LeaderboardEntry {
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      if (!navigator.onLine) {
+          setError("You are offline. Please connect to the internet to view the leaderboard.");
+          setLoading(false);
+          return;
+      }
       setLoading(true);
+      setError(null);
       try {
         const q = query(collection(db, 'leaderboard'), orderBy('level', 'desc'), orderBy('moves', 'asc'), limit(100));
         const querySnapshot = await getDocs(q);
         const leaderboardData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
         
-        // Firestore doesn't support distinct queries on a field, so we filter client-side.
-        // Get the single best score (lowest moves for the highest level) for each user.
         const bestScores = new Map<string, LeaderboardEntry>();
 
         for (const entry of leaderboardData) {
             const existingEntry = bestScores.get(entry.userName);
 
-            if (!existingEntry) {
+            if (!existingEntry || entry.level > existingEntry.level || (entry.level === existingEntry.level && entry.moves < existingEntry.moves)) {
                 bestScores.set(entry.userName, entry);
-            } else {
-                if (entry.level > existingEntry.level) {
-                    bestScores.set(entry.userName, entry);
-                } else if (entry.level === existingEntry.level && entry.moves < existingEntry.moves) {
-                    bestScores.set(entry.userName, entry);
-                }
             }
         }
         
@@ -57,6 +56,7 @@ export default function LeaderboardPage() {
         setLeaderboard(finalLeaderboard);
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
+        setError("Could not fetch leaderboard data. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -85,6 +85,10 @@ export default function LeaderboardPage() {
           {loading ? (
             <div className="flex justify-center items-center h-40">
                 <p>Loading leaderboard...</p>
+            </div>
+          ) : error ? (
+             <div className="flex justify-center items-center h-40">
+                <p className="text-destructive">{error}</p>
             </div>
           ) : leaderboard.length === 0 ? (
              <div className="flex justify-center items-center h-40">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GameBoard } from '@/components/game/game-board';
@@ -24,65 +24,72 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUserProgress = async () => {
-      if (user) {
+      // Only fetch if we have a user and are online
+      if (user && navigator.onLine) {
         const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const currentLevel = userData.currentLevel || 3;
-          setLevel(currentLevel);
-          setMaxLevel(userData.maxLevel || 3);
-          resetGame(currentLevel); // Reset game with fetched level
-        } else {
-          // New user, set initial data
-          await setDoc(userDocRef, { 
-            email: user.email, 
-            displayName: user.displayName || 'Anonymous',
-            currentLevel: 3, 
-            maxLevel: 3 
-          });
-          resetGame(3);
+        try {
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const currentLevel = userData.currentLevel || 3;
+            setLevel(currentLevel);
+            setMaxLevel(userData.maxLevel || 3);
+          } else {
+            // New user, set initial data
+            await setDoc(userDocRef, { 
+              email: user.email, 
+              displayName: user.displayName || 'Anonymous',
+              currentLevel: 3, 
+              maxLevel: 3 
+            });
+            setLevel(3);
+            setMaxLevel(3);
+          }
+        } catch (e) {
+            console.error("Error fetching user progress:", e);
         }
-      } else {
-        resetGame(3); // For non-logged-in users
       }
     };
+
     if (!loading) {
       fetchUserProgress();
     }
   }, [user, loading]);
 
-  const handleNextLevel = async () => {
+  const handleNextLevel = useCallback(async () => {
     const nextLevel = level + 1;
-    if (nextLevel <= 10) { // Max level 10
-      if(user) {
-        // Save old level's score first
-        const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
-        const currentBestDoc = await getDoc(leaderboardDocRef);
-        if (!currentBestDoc.exists() || moves < currentBestDoc.data().moves) {
-            await setDoc(leaderboardDocRef, {
-                userId: user.uid,
-                userName: user.displayName || 'Anonymous',
-                level: level,
-                moves: moves,
-                timestamp: new Date(),
-            });
+    if (nextLevel > 10) return; // Max level check
+
+    if (user && navigator.onLine) {
+        try {
+            // Save old level's score first
+            const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
+            const currentBestDoc = await getDoc(leaderboardDocRef);
+            if (!currentBestDoc.exists() || moves < currentBestDoc.data().moves) {
+                await setDoc(leaderboardDocRef, {
+                    userId: user.uid,
+                    userName: user.displayName || 'Anonymous',
+                    level: level,
+                    moves: moves,
+                    timestamp: new Date(),
+                });
+            }
+            
+            // Then update user's current level
+            const newMaxLevel = Math.max(maxLevel, nextLevel);
+            const userDocRef = doc(db, 'users', user.uid);
+            await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
+            setMaxLevel(newMaxLevel);
+        } catch (e) {
+            console.error("Error saving progress:", e);
         }
-        
-        // Then update user's current level
-        const newMaxLevel = Math.max(maxLevel, nextLevel);
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
-        setMaxLevel(newMaxLevel);
-      }
-      setLevel(nextLevel);
-      resetGame(nextLevel);
     }
-  };
+    setLevel(nextLevel);
+  }, [level, user, moves, maxLevel]);
   
-  const handlePlayAgain = () => {
+  const handlePlayAgain = useCallback(() => {
     resetGame(level);
-  }
+  }, [level, resetGame]);
 
   const handleSignOut = async () => {
     await signOut(auth);

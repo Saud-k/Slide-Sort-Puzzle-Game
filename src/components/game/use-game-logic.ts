@@ -5,19 +5,19 @@ import type { Board, Position } from '@/lib/types';
 
 const SHUFFLE_MOVES_MULTIPLIER = 50;
 
-export const useGameLogic = (initialLevel: number) => {
-  const [level, setLevel] = useState(initialLevel);
+export const useGameLogic = (level: number) => {
   const [board, setBoard] = useState<Board>([]);
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  const checkWin = useCallback((currentBoard: Board, boardLevel: number): boolean => {
+  const checkWin = useCallback((currentBoard: Board): boolean => {
     if (!currentBoard.length) return false;
+    const boardSize = currentBoard.length;
     let count = 1;
-    for (let i = 0; i < boardLevel; i++) {
-      for (let j = 0; j < boardLevel; j++) {
-        if (i === boardLevel - 1 && j === boardLevel - 1) {
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
+        if (i === boardSize - 1 && j === boardSize - 1) {
           if (currentBoard[i][j] !== null) return false;
         } else {
           if (currentBoard[i][j] !== count) return false;
@@ -28,9 +28,10 @@ export const useGameLogic = (initialLevel: number) => {
     return true;
   }, []);
 
-  const findHole = (currentBoard: Board, boardLevel: number): Position | null => {
-    for (let i = 0; i < boardLevel; i++) {
-      for (let j = 0; j < boardLevel; j++) {
+  const findHole = (currentBoard: Board): Position | null => {
+    const boardSize = currentBoard.length;
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
         if (currentBoard[i][j] === null) {
           return { row: i, col: j };
         }
@@ -39,17 +40,18 @@ export const useGameLogic = (initialLevel: number) => {
     return null;
   };
 
-  const shuffleBoard = useCallback((solvedBoard: Board, boardLevel: number): Board => {
+  const shuffleBoard = useCallback((solvedBoard: Board): Board => {
     let shuffledBoard = JSON.parse(JSON.stringify(solvedBoard));
-    let hole = findHole(shuffledBoard, boardLevel)!;
+    const boardSize = shuffledBoard.length;
+    let hole = findHole(shuffledBoard)!;
 
-    for (let i = 0; i < boardLevel * boardLevel * SHUFFLE_MOVES_MULTIPLIER; i++) {
+    for (let i = 0; i < boardSize * boardSize * SHUFFLE_MOVES_MULTIPLIER; i++) {
       const neighbors: Position[] = [];
       const { row, col } = hole;
       if (row > 0) neighbors.push({ row: row - 1, col });
-      if (row < boardLevel - 1) neighbors.push({ row: row + 1, col });
+      if (row < boardSize - 1) neighbors.push({ row: row + 1, col });
       if (col > 0) neighbors.push({ row, col: col - 1 });
-      if (col < boardLevel - 1) neighbors.push({ row, col: col + 1 });
+      if (col < boardSize - 1) neighbors.push({ row, col: col + 1 });
       
       const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
       
@@ -58,15 +60,15 @@ export const useGameLogic = (initialLevel: number) => {
       hole = randomNeighbor;
     }
     
-    if (checkWin(shuffledBoard, boardLevel)) {
-        return shuffleBoard(solvedBoard, boardLevel);
+    // In rare cases, the shuffled board could be the solved one
+    if (checkWin(shuffledBoard)) {
+        return shuffleBoard(solvedBoard);
     }
 
     return shuffledBoard;
   }, [checkWin]);
 
   const resetGame = useCallback((newLevel: number) => {
-    setLevel(newLevel);
     setIsInitializing(true);
     setIsWon(false);
     setMoves(0);
@@ -85,19 +87,24 @@ export const useGameLogic = (initialLevel: number) => {
       return newBoard;
     })();
 
-    const shuffled = shuffleBoard(solved, newLevel);
-    setBoard(shuffled);
-    setTimeout(() => setIsInitializing(false), 300);
+    // Use a timeout to ensure the UI has time to show the loading state
+    setTimeout(() => {
+        const shuffled = shuffleBoard(solved);
+        setBoard(shuffled);
+        setIsInitializing(false);
+    }, 50); // A small delay is enough
   }, [shuffleBoard]);
   
+  // This effect now correctly depends on the `level` prop passed to the hook.
+  // When `level` changes on the main page, this effect will trigger a game reset.
   useEffect(() => {
-    resetGame(initialLevel);
-  }, [initialLevel, resetGame]);
+    resetGame(level);
+  }, [level, resetGame]);
 
   const moveBlock = (row: number, col: number) => {
     if (isWon || isInitializing) return;
 
-    const hole = findHole(board, level)!;
+    const hole = findHole(board)!;
     const clicked = { row, col };
 
     if (clicked.row !== hole.row && clicked.col !== hole.col) {
@@ -105,6 +112,7 @@ export const useGameLogic = (initialLevel: number) => {
     }
 
     const newBoard = JSON.parse(JSON.stringify(board));
+    const boardSize = newBoard.length;
 
     if (clicked.row === hole.row) { // Horizontal move
       const direction = clicked.col < hole.col ? 1 : -1;
@@ -123,10 +131,10 @@ export const useGameLogic = (initialLevel: number) => {
     const newMoves = moves + 1;
     setMoves(newMoves);
 
-    if (checkWin(newBoard, level)) {
+    if (checkWin(newBoard)) {
       setIsWon(true);
     }
   };
 
-  return { level, board, moves, isWon, isInitializing, moveBlock, resetGame };
+  return { board, moves, isWon, isInitializing, moveBlock, resetGame };
 };
