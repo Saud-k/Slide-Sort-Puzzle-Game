@@ -53,7 +53,7 @@ export default function SignUp() {
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>Create an account to save your progress.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <form onSubmit={handleSignUp} className="space-y-4">
              <div className="space-y-2">
               <Label htmlFor="displayName">Display Name</Label>

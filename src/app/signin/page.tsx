@@ -44,7 +44,7 @@ export default function SignIn() {
           <CardTitle>Sign In</CardTitle>
           <CardDescription>Sign in to your account to continue.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

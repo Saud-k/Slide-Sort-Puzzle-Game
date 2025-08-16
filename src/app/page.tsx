@@ -36,7 +36,7 @@ export default function HomePage() {
             The classic sliding puzzle.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 p-6">
+        <CardContent className="flex flex-col items-center gap-4 p-6 pt-0">
           <Button onClick={handlePlayClick} className="w-full" size="lg">Play</Button>
           <Link href="/leaderboard" passHref className="w-full">
             <Button variant="outline" className="w-full" size="lg">Leaderboard</Button>
