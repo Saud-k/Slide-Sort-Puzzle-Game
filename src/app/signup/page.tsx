@@ -36,7 +36,7 @@ export default function SignUp() {
       });
 
       toast({ title: "Success", description: "Account created successfully!" });
-      router.push("/");
+      router.push("/game");
     } catch (error: any) {
       setError(error.message);
       toast({
@@ -95,6 +95,11 @@ export default function SignUp() {
             Already have an account?{" "}
             <Link href="/signin" className="underline">
               Sign In
+            </Link>
+          </p>
+          <p className="mt-4 text-center text-sm">
+            <Link href="/" className="underline">
+              Back to Home
             </Link>
           </p>
         </CardContent>

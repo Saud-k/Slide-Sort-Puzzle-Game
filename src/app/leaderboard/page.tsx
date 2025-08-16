@@ -87,7 +87,7 @@ export default function LeaderboardPage() {
     <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
       <header className="w-full max-w-4xl mx-auto mb-4">
         <Link href="/" passHref>
-          <Button variant="outline">Back to Game</Button>
+          <Button variant="outline">Back to Home</Button>
         </Link>
       </header>
       <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">

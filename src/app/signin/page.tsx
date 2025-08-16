@@ -25,7 +25,7 @@ export default function SignIn() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({ title: "Success", description: "Signed in successfully!" });
-      router.push("/");
+      router.push("/game");
     } catch (error: any) {
       setError(error.message);
       toast({
@@ -74,6 +74,11 @@ export default function SignIn() {
             Don't have an account?{" "}
             <Link href="/signup" className="underline">
               Sign Up
+            </Link>
+          </p>
+           <p className="mt-4 text-center text-sm">
+            <Link href="/" className="underline">
+              Back to Home
             </Link>
           </p>
         </CardContent>
