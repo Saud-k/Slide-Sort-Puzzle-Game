@@ -27,7 +27,6 @@ export default function LevelsPage() {
         try {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            // We still fetch maxLevel to color the completed levels, but it won't be used for locking.
             setMaxLevel(userDoc.data().maxLevel || STARTING_LEVEL);
           }
         } catch (error) {
@@ -36,7 +35,6 @@ export default function LevelsPage() {
           setIsFetching(false);
         }
       } else if (!loading) {
-        // Not logged in
         setIsFetching(false);
       }
     };
@@ -61,11 +59,11 @@ export default function LevelsPage() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
-      <div className="absolute top-4 left-4">
+       <header className="w-full max-w-2xl mx-auto mb-4">
         <Link href="/" passHref>
           <Button variant="outline">Back to Game</Button>
         </Link>
-      </div>
+      </header>
       <Card className="w-full max-w-2xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center p-4 md:p-6">
           <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">

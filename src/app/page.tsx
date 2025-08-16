@@ -106,26 +106,27 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center p-4 md:p-6 lg:p-8">
-       <div className="absolute top-4 right-4 flex items-center gap-2 sm:gap-4">
-        <div className="text-right hidden sm:block">
-          <p className="font-semibold text-sm truncate">{user.displayName || 'Welcome'}</p>
-        </div>
-        <Avatar>
-          <AvatarImage src={user.photoURL || undefined} />
-          <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-        </Avatar>
-        <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
-        <Link href="/leaderboard" passHref>
-            <Button variant="link" size="sm">Leaderboard</Button>
-        </Link>
-      </div>
-       <div className="absolute top-4 left-4">
+    <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
+       <header className="w-full max-w-md mx-auto flex justify-between items-center mb-4">
         <Link href="/levels" passHref>
           <Button variant="outline">Choose Level</Button>
         </Link>
-      </div>
-      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm mt-16 md:mt-0">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="text-right hidden sm:block">
+            <p className="font-semibold text-sm truncate">{user.displayName || 'Welcome'}</p>
+          </div>
+          <Avatar>
+            <AvatarImage src={user.photoURL || undefined} />
+            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+          </Avatar>
+          <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
+          <Link href="/leaderboard" passHref>
+              <Button variant="link" size="sm">Leaderboard</Button>
+          </Link>
+        </div>
+      </header>
+
+      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center p-4 md:p-6">
           <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
             Slide Sort Puzzle

@@ -36,7 +36,6 @@ export default function LeaderboardPage() {
       setLoading(true);
       setError(null);
       try {
-        // Query for a specific level
         const q = query(
           collection(db, 'leaderboard'), 
           where('level', '==', selectedLevel),
@@ -46,9 +45,6 @@ export default function LeaderboardPage() {
         const querySnapshot = await getDocs(q);
         const leaderboardData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
         
-        // Since the doc ID is user_level, we can get the best score by just taking the first one for each user.
-        // A better approach is to just ensure we only have one entry per user per level, which the main page logic does.
-        // So we can simplify the logic here.
         const bestScores = new Map<string, LeaderboardEntry>();
 
         for (const entry of leaderboardData) {
@@ -63,7 +59,7 @@ export default function LeaderboardPage() {
         
         finalLeaderboard.sort((a, b) => a.moves - b.moves);
 
-        setLeaderboard(finalLeaderboard.slice(0, 10)); // Keep top 10
+        setLeaderboard(finalLeaderboard.slice(0, 10));
 
       } catch (error: any) {
         console.error("Error fetching leaderboard:", error);
@@ -89,11 +85,11 @@ export default function LeaderboardPage() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-6 lg:p-8">
-       <div className="absolute top-4 left-4">
+      <header className="w-full max-w-4xl mx-auto mb-4">
         <Link href="/" passHref>
           <Button variant="outline">Back to Game</Button>
         </Link>
-      </div>
+      </header>
       <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="flex flex-col md:flex-row items-center justify-between text-center md:text-left p-4 md:p-6">
           <div>
