@@ -21,13 +21,7 @@ export default function HomePage() {
     }
   };
 
-  useEffect(() => {
-    if (!loading && user) {
-      router.push('/game');
-    }
-  }, [user, loading, router]);
-  
-  if (loading || user) {
+  if (loading) {
     return <div className="flex min-h-screen w-full flex-col items-center justify-center">Loading...</div>;
   }
 
