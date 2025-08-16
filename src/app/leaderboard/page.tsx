@@ -22,44 +22,44 @@ export default function LeaderboardPage() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
-      const q = query(collection(db, 'leaderboard'), orderBy('level', 'desc'), orderBy('moves', 'asc'), limit(100));
-      const querySnapshot = await getDocs(q);
-      const leaderboardData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
-      
-      // As Firestore doesn't support complex filtering, we do it client-side
-      // Get best score (lowest moves) for each user per level
-      const bestScores = new Map<string, LeaderboardEntry>();
+      try {
+        const q = query(collection(db, 'leaderboard'), orderBy('level', 'desc'), orderBy('moves', 'asc'), limit(100));
+        const querySnapshot = await getDocs(q);
+        const leaderboardData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
+        
+        // Firestore doesn't support distinct queries on a field, so we filter client-side.
+        // Get the single best score (lowest moves for the highest level) for each user.
+        const bestScores = new Map<string, LeaderboardEntry>();
 
-      leaderboardData.forEach(entry => {
-        const key = `${entry.userName}-level-${entry.level}`;
-        const existingEntry = bestScores.get(key);
+        for (const entry of leaderboardData) {
+            const existingEntry = bestScores.get(entry.userName);
 
-        if (!existingEntry || entry.moves < existingEntry.moves) {
-          bestScores.set(key, entry);
+            if (!existingEntry) {
+                bestScores.set(entry.userName, entry);
+            } else {
+                if (entry.level > existingEntry.level) {
+                    bestScores.set(entry.userName, entry);
+                } else if (entry.level === existingEntry.level && entry.moves < existingEntry.moves) {
+                    bestScores.set(entry.userName, entry);
+                }
+            }
         }
-      });
-      
-      const uniqueBestScores = Array.from(bestScores.values());
-      
-      // Then get the highest level for each user
-      const userMaxLevel = new Map<string, LeaderboardEntry>();
-      uniqueBestScores.forEach(entry => {
-        const existingEntry = userMaxLevel.get(entry.userName);
-        if(!existingEntry || entry.level > existingEntry.level) {
-            userMaxLevel.set(entry.userName, entry);
-        }
-      });
+        
+        const finalLeaderboard = Array.from(bestScores.values());
+        
+        finalLeaderboard.sort((a, b) => {
+          if (b.level !== a.level) {
+            return b.level - a.level;
+          }
+          return a.moves - b.moves;
+        });
 
-      const finalLeaderboard = Array.from(userMaxLevel.values());
-      finalLeaderboard.sort((a, b) => {
-        if (b.level !== a.level) {
-          return b.level - a.level;
-        }
-        return a.moves - b.moves;
-      });
-
-      setLeaderboard(finalLeaderboard);
-      setLoading(false);
+        setLeaderboard(finalLeaderboard);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchLeaderboard();
@@ -78,12 +78,18 @@ export default function LeaderboardPage() {
             Leaderboard
           </CardTitle>
           <CardDescription>
-            See who is at the top of the game.
+            Top players with the highest level and fewest moves.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p>Loading leaderboard...</p>
+            <div className="flex justify-center items-center h-40">
+                <p>Loading leaderboard...</p>
+            </div>
+          ) : leaderboard.length === 0 ? (
+             <div className="flex justify-center items-center h-40">
+                <p>No scores yet. Be the first to set one!</p>
+            </div>
           ) : (
             <Table>
               <TableHeader>

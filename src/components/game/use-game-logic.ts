@@ -5,7 +5,8 @@ import type { Board, Position } from '@/lib/types';
 
 const SHUFFLE_MOVES_MULTIPLIER = 50;
 
-export const useGameLogic = (level: number) => {
+export const useGameLogic = (initialLevel: number) => {
+  const [level, setLevel] = useState(initialLevel);
   const [board, setBoard] = useState<Board>([]);
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
@@ -65,6 +66,7 @@ export const useGameLogic = (level: number) => {
   }, [checkWin]);
 
   const resetGame = useCallback((newLevel: number) => {
+    setLevel(newLevel);
     setIsInitializing(true);
     setIsWon(false);
     setMoves(0);
@@ -89,8 +91,8 @@ export const useGameLogic = (level: number) => {
   }, [shuffleBoard]);
   
   useEffect(() => {
-    resetGame(level);
-  }, [level, resetGame]);
+    resetGame(initialLevel);
+  }, [initialLevel, resetGame]);
 
   const moveBlock = (row: number, col: number) => {
     if (isWon || isInitializing) return;
@@ -126,5 +128,5 @@ export const useGameLogic = (level: number) => {
     }
   };
 
-  return { board, moves, isWon, isInitializing, moveBlock, resetGame };
+  return { level, board, moves, isWon, isInitializing, moveBlock, resetGame };
 };

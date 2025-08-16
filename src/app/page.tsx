@@ -29,8 +29,10 @@ export default function Home() {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          setLevel(userData.currentLevel || 3);
+          const currentLevel = userData.currentLevel || 3;
+          setLevel(currentLevel);
           setMaxLevel(userData.maxLevel || 3);
+          resetGame(currentLevel); // Reset game with fetched level
         } else {
           // New user, set initial data
           await setDoc(userDocRef, { 
@@ -39,7 +41,10 @@ export default function Home() {
             currentLevel: 3, 
             maxLevel: 3 
           });
+          resetGame(3);
         }
+      } else {
+        resetGame(3); // For non-logged-in users
       }
     };
     if (!loading) {
@@ -50,24 +55,28 @@ export default function Home() {
   const handleNextLevel = async () => {
     const nextLevel = level + 1;
     if (nextLevel <= 10) { // Max level 10
-      const newMaxLevel = Math.max(maxLevel, nextLevel);
       if(user) {
         // Save old level's score first
         const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
-        await setDoc(leaderboardDocRef, {
-          userId: user.uid,
-          userName: user.displayName || 'Anonymous',
-          level: level,
-          moves: moves,
-          timestamp: new Date(),
-        }, {merge: true});
-
+        const currentBestDoc = await getDoc(leaderboardDocRef);
+        if (!currentBestDoc.exists() || moves < currentBestDoc.data().moves) {
+            await setDoc(leaderboardDocRef, {
+                userId: user.uid,
+                userName: user.displayName || 'Anonymous',
+                level: level,
+                moves: moves,
+                timestamp: new Date(),
+            });
+        }
+        
         // Then update user's current level
+        const newMaxLevel = Math.max(maxLevel, nextLevel);
         const userDocRef = doc(db, 'users', user.uid);
         await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
+        setMaxLevel(newMaxLevel);
       }
       setLevel(nextLevel);
-      setMaxLevel(newMaxLevel);
+      resetGame(nextLevel);
     }
   };
   
@@ -117,7 +126,6 @@ export default function Home() {
        <div className="absolute top-4 right-4 flex items-center gap-4">
         <div className="text-right">
           <p className="font-semibold text-sm">{user.displayName || 'Welcome'}</p>
-          <p className="text-xs text-muted-foreground">{user.email}</p>
         </div>
         <Avatar>
           <AvatarImage src={user.photoURL || undefined} />
