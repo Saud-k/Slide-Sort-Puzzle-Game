@@ -105,14 +105,14 @@ export default function LeaderboardPage() {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2 mt-4 md:mt-0">
-            <label htmlFor="level-select" className="text-sm font-medium">Level:</label>
+            <label htmlFor="level-select" className="text-sm font-medium">Size:</label>
             <Select onValueChange={handleLevelChange} defaultValue={String(selectedLevel)}>
               <SelectTrigger id="level-select" className="w-[120px]">
-                <SelectValue placeholder="Select Level" />
+                <SelectValue placeholder="Select Size" />
               </SelectTrigger>
               <SelectContent>
                 {levelOptions.map(level => (
-                   <SelectItem key={level} value={String(level)}>Level {level}</SelectItem>
+                   <SelectItem key={level} value={String(level)}>{level}x{level}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

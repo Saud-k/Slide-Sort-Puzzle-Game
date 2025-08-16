@@ -187,7 +187,7 @@ export default function Home() {
         <CardContent className="flex flex-col items-center gap-4 p-4">
           <div className="flex items-center gap-4 w-full justify-center">
               <div className="flex items-center gap-2 text-sm">
-                <p>Level: {level} x {level}</p>
+                <p>Size: {level} x {level}</p>
               </div>
               <div className="font-mono text-base p-2 px-3 rounded-md bg-muted">
                 Moves: <span className="font-bold">{moves}</span>

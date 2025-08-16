@@ -89,7 +89,7 @@ export default function LevelsPage() {
                     isCompleted && "bg-green-600 hover:bg-green-700 text-white",
                   )}
                 >
-                  Level {level}
+                  {level}x{level}
                 </Button>
               );
             })}
