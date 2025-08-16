@@ -8,18 +8,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { CheckCircle2 } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface WinDialogProps {
   isOpen: boolean;
   moves: number;
+  onNextLevel: () => void;
   onPlayAgain: () => void;
+  isLastLevel: boolean;
 }
 
-export function WinDialog({ isOpen, moves, onPlayAgain }: WinDialogProps) {
+export function WinDialog({ isOpen, moves, onNextLevel, onPlayAgain, isLastLevel }: WinDialogProps) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onPlayAgain()}>
+    <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex justify-center mb-4">
@@ -32,10 +36,13 @@ export function WinDialog({ isOpen, moves, onPlayAgain }: WinDialogProps) {
             You solved the puzzle in {moves} moves.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction onClick={onPlayAgain} className="w-full">
-            Play Again
-          </AlertDialogAction>
+        <AlertDialogFooter className="sm:justify-center">
+          <Button variant="outline" onClick={onPlayAgain}>Play Same Level</Button>
+          {!isLastLevel && (
+            <Button onClick={onNextLevel}>
+              Next Level
+            </Button>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
