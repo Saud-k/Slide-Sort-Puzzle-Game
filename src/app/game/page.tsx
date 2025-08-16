@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
 
 export default function GamePage() {
   const { user, loading } = useAuth();
@@ -82,69 +84,83 @@ export default function GamePage() {
   }
   
   return (
-    <main className="flex h-screen w-full flex-col items-center p-2 sm:p-4">
-       <header className="w-full max-w-md mx-auto flex justify-between items-center mb-2">
-        <Link href="/levels" passHref>
-          <Button variant="outline" size="sm">Choose Level</Button>
-        </Link>
-        { user && (
-            <div className="flex items-center gap-2 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.photoURL || undefined} />
-                      <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden sm:inline text-xs font-medium">{user.displayName}</span>
-                </div>
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
-                <Link href="/leaderboard" passHref>
-                    <Button variant="link" size="sm">Leaderboard</Button>
-                </Link>
-            </div>
-        )}
-        { !user && (
-            <div className="flex items-center gap-2">
-                <Link href="/leaderboard" passHref>
-                    <Button variant="outline" size="sm">Leaderboard</Button>
-                </Link>
-                <Link href="/signin" passHref>
-                    <Button size="sm">Sign In</Button>
-                </Link>
-            </div>
-        )}
-      </header>
-
-      <div className="flex-grow flex items-center justify-center w-full">
-        <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-            <CardHeader className="text-center p-3 md:p-4">
-            <CardTitle className="text-xl md:text-2xl font-headline tracking-tight">
-                Slide Sort Puzzle
+    <main className="flex h-screen w-full flex-col md:flex-row p-2 sm:p-4 gap-4 md:gap-8">
+      {/* Left Panel */}
+      <div className="w-full md:w-64 flex flex-col gap-4 p-4 border-b md:border-b-0 md:border-r">
+        <div className="flex flex-col items-center text-center">
+            <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
+                Slide Sort
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs mt-1">
                 Arrange the numbers in order.
             </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-2 p-3 md:p-4">
-            <div className="flex items-center gap-4 w-full justify-center">
-                <div className="flex items-center gap-2 text-sm">
-                    <p>Size: {level}x{level}</p>
-                </div>
-                <div className="font-mono text-base p-1 px-3 rounded-md bg-muted">
-                    Moves: <span className="font-bold">{moves}</span>
-                </div>
-            </div>
-            
-            <GameBoard 
-                level={level}
-                board={board}
-                isInitializing={isInitializing}
-                isWon={isWon}
-                moveBlock={moveBlock}
-            />
-            <Button variant="outline" onClick={resetCurrentLevel} className="mt-2" size="sm">
-                Reset
-            </Button>
+        </div>
+        
+        <Separator />
 
+        {/* User Info & Auth */}
+        {user ? (
+            <div className="flex flex-col items-center gap-3">
+                <Avatar className="h-16 w-16">
+                    <AvatarImage src={user.photoURL || undefined} />
+                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+                <span className="font-medium text-lg">{user.displayName}</span>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
+            </div>
+        ) : (
+            <div className="flex flex-col items-center gap-2">
+                <Link href="/signin" passHref className="w-full">
+                    <Button size="sm" className="w-full">Sign In</Button>
+                </Link>
+                 <Link href="/signup" passHref className="w-full">
+                    <Button size="sm" variant="outline" className="w-full">Sign Up</Button>
+                </Link>
+            </div>
+        )}
+
+        <Separator />
+        
+        {/* Game Stats */}
+        <div className="flex flex-col items-center gap-2">
+            <div className="text-lg">
+                <p>Size: <span className="font-bold">{level}x{level}</span></p>
+            </div>
+            <div className="font-mono text-xl p-2 px-4 rounded-md bg-muted">
+                Moves: <span className="font-bold">{moves}</span>
+            </div>
+        </div>
+
+        <Separator />
+        
+        {/* Game Controls */}
+        <div className="flex flex-col gap-2 mt-auto">
+            <Button variant="outline" onClick={resetCurrentLevel}>
+                Reset Level
+            </Button>
+            <Link href="/levels" passHref>
+                <Button variant="secondary" className="w-full">Choose Level</Button>
+            </Link>
+            <Link href="/leaderboard" passHref>
+                <Button variant="secondary" className="w-full">Leaderboard</Button>
+            </Link>
+             <Link href="/" passHref>
+                <Button variant="link" size="sm" className="mt-2">Back to Home</Button>
+            </Link>
+        </div>
+      </div>
+      
+      {/* Right Panel - Game Board */}
+      <div className="flex-grow flex items-center justify-center">
+        <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
+            <CardContent className="flex flex-col items-center justify-center p-2 md:p-4">
+              <GameBoard 
+                  level={level}
+                  board={board}
+                  isInitializing={isInitializing}
+                  isWon={isWon}
+                  moveBlock={moveBlock}
+              />
             </CardContent>
         </Card>
       </div>
@@ -156,10 +172,6 @@ export default function GamePage() {
         onPlayAgain={handlePlayAgain}
         isLastLevel={level >= 10}
       />
-
-      <footer className="w-full text-center text-xs text-muted-foreground p-2">
-        <p>A classic sliding puzzle game. Built for fun.</p>
-      </footer>
     </main>
   );
 }
