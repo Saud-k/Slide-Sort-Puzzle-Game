@@ -2,23 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface LeaderboardEntry {
   id: string;
   userName: string;
   level: number;
   moves: number;
+  userId: string;
 }
+
+const TOTAL_LEVELS = 10;
+const STARTING_LEVEL = 3;
 
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<number>(STARTING_LEVEL);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -30,40 +36,56 @@ export default function LeaderboardPage() {
       setLoading(true);
       setError(null);
       try {
-        const q = query(collection(db, 'leaderboard'), orderBy('level', 'desc'), orderBy('moves', 'asc'), limit(100));
+        // Query for a specific level
+        const q = query(
+          collection(db, 'leaderboard'), 
+          where('level', '==', selectedLevel),
+          orderBy('moves', 'asc'), 
+          limit(100)
+        );
         const querySnapshot = await getDocs(q);
         const leaderboardData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
         
+        // Since the doc ID is user_level, we can get the best score by just taking the first one for each user.
+        // A better approach is to just ensure we only have one entry per user per level, which the main page logic does.
+        // So we can simplify the logic here.
         const bestScores = new Map<string, LeaderboardEntry>();
 
         for (const entry of leaderboardData) {
-            const existingEntry = bestScores.get(entry.userName);
+            const existingEntry = bestScores.get(entry.userId);
 
-            if (!existingEntry || entry.level > existingEntry.level || (entry.level === existingEntry.level && entry.moves < existingEntry.moves)) {
-                bestScores.set(entry.userName, entry);
+            if (!existingEntry || entry.moves < existingEntry.moves) {
+                bestScores.set(entry.userId, entry);
             }
         }
         
         const finalLeaderboard = Array.from(bestScores.values());
         
-        finalLeaderboard.sort((a, b) => {
-          if (b.level !== a.level) {
-            return b.level - a.level;
-          }
-          return a.moves - b.moves;
-        });
+        finalLeaderboard.sort((a, b) => a.moves - b.moves);
 
-        setLeaderboard(finalLeaderboard);
-      } catch (error) {
+        setLeaderboard(finalLeaderboard.slice(0, 10)); // Keep top 10
+
+      } catch (error: any) {
         console.error("Error fetching leaderboard:", error);
-        setError("Could not fetch leaderboard data. Please try again later.");
+         if (error.code === 'failed-precondition') {
+          setError(`A database index is required for this query. Please create a composite index for the 'leaderboard' collection on 'level' (ascending) and 'moves' (ascending) in your Firebase console.`);
+        } else {
+          setError("Could not fetch leaderboard data. Please try again later.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [selectedLevel]);
+
+  const handleLevelChange = (value: string) => {
+    setSelectedLevel(parseInt(value, 10));
+  };
+  
+  const levelOptions = Array.from({ length: TOTAL_LEVELS - STARTING_LEVEL + 1 }, (_, i) => i + STARTING_LEVEL);
+
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center p-4 md:p-8">
@@ -73,13 +95,28 @@ export default function LeaderboardPage() {
         </Link>
       </div>
       <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
-            Leaderboard
-          </CardTitle>
-          <CardDescription>
-            Top players with the highest level and fewest moves.
-          </CardDescription>
+        <CardHeader className="flex flex-col md:flex-row items-center justify-between text-center md:text-left">
+          <div>
+            <CardTitle className="text-3xl md:text-4xl font-headline tracking-tight">
+              Leaderboard
+            </CardTitle>
+            <CardDescription>
+              Top players with the fewest moves for the selected level.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <label htmlFor="level-select" className="text-sm font-medium">Level:</label>
+            <Select onValueChange={handleLevelChange} defaultValue={String(selectedLevel)}>
+              <SelectTrigger id="level-select" className="w-[120px]">
+                <SelectValue placeholder="Select Level" />
+              </SelectTrigger>
+              <SelectContent>
+                {levelOptions.map(level => (
+                   <SelectItem key={level} value={String(level)}>Level {level}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -88,11 +125,11 @@ export default function LeaderboardPage() {
             </div>
           ) : error ? (
              <div className="flex justify-center items-center h-40">
-                <p className="text-destructive">{error}</p>
+                <p className="text-destructive max-w-md text-center">{error}</p>
             </div>
           ) : leaderboard.length === 0 ? (
              <div className="flex justify-center items-center h-40">
-                <p>No scores yet. Be the first to set one!</p>
+                <p>No scores yet for this level. Be the first!</p>
             </div>
           ) : (
             <Table>
@@ -100,7 +137,6 @@ export default function LeaderboardPage() {
                 <TableRow>
                   <TableHead className="w-[80px]">Rank</TableHead>
                   <TableHead>Player</TableHead>
-                  <TableHead className="text-right">Level</TableHead>
                   <TableHead className="text-right">Total Moves</TableHead>
                 </TableRow>
               </TableHeader>
@@ -109,7 +145,6 @@ export default function LeaderboardPage() {
                   <TableRow key={entry.id}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>{entry.userName}</TableCell>
-                    <TableCell className="text-right">{entry.level}</TableCell>
                     <TableCell className="text-right">{entry.moves}</TableCell>
                   </TableRow>
                 ))}
