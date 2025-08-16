@@ -30,7 +30,6 @@ export default function Home() {
     if (levelFromQuery) {
       const newLevel = parseInt(levelFromQuery, 10);
       if (!isNaN(newLevel)) {
-        // Now sets the level without checking if it's "unlocked"
         setLevel(newLevel);
       }
     }
@@ -51,7 +50,6 @@ export default function Home() {
             const levelFromQuery = searchParams.get('level');
             const queryLevel = levelFromQuery ? parseInt(levelFromQuery, 10) : NaN;
             
-            // Set level from query param if present, otherwise from DB (or default)
             if (!isNaN(queryLevel)) {
                 setLevel(queryLevel);
             } else {
@@ -60,7 +58,6 @@ export default function Home() {
             setMaxLevel(fetchedMaxLevel);
 
           } else {
-            // New user, set initial data
             await setDoc(userDocRef, { 
               email: user.email, 
               displayName: user.displayName || 'Anonymous',
@@ -74,7 +71,6 @@ export default function Home() {
             console.error("Error fetching user progress:", e);
         }
       } else if (!user && !loading) {
-         // Handle guest user state if necessary
          setLevel(3);
          setMaxLevel(3);
       }
@@ -175,7 +171,7 @@ export default function Home() {
           <Button variant="outline">Choose Level</Button>
         </Link>
       </div>
-      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
+      <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm mt-12 md:mt-0">
         <CardHeader className="text-center p-4 md:p-6">
           <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
             Slide Sort Puzzle
@@ -187,7 +183,7 @@ export default function Home() {
         <CardContent className="flex flex-col items-center gap-4 p-4 md:p-6">
           <div className="flex items-center gap-4 w-full justify-center">
               <div className="flex items-center gap-2 text-base">
-                <p>Size: {level} x {level}</p>
+                <p>Size: {level}x{level}</p>
               </div>
               <div className="font-mono text-lg p-2 px-4 rounded-md bg-muted">
                 Moves: <span className="font-bold">{moves}</span>
