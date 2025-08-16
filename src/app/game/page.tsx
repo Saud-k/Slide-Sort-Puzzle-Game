@@ -89,10 +89,13 @@ export default function GamePage() {
         </Link>
         { user && (
             <div className="flex items-center gap-2 sm:gap-4">
-                <Avatar>
-                    <AvatarImage src={user.photoURL || undefined} />
-                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
+                <div className="flex items-center gap-2">
+                  <Avatar>
+                      <AvatarImage src={user.photoURL || undefined} />
+                      <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline text-sm font-medium">{user.displayName}</span>
+                </div>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
                 <Link href="/leaderboard" passHref>
                     <Button variant="link" size="sm">Leaderboard</Button>
