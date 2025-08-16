@@ -13,18 +13,42 @@ import { db } from '@/lib/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [level, setLevel] = useState(3);
   const [maxLevel, setMaxLevel] = useState(3);
+  
   const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
-  const router = useRouter();
+  
+  const handleSetLevel = (newLevel: number) => {
+    if (newLevel <= maxLevel) {
+      setLevel(newLevel);
+    }
+  };
+
+  useEffect(() => {
+    const levelFromQuery = searchParams.get('level');
+    if (levelFromQuery) {
+      const newLevel = parseInt(levelFromQuery, 10);
+      if (!isNaN(newLevel)) {
+         if (newLevel <= maxLevel) {
+          setLevel(newLevel);
+        } else {
+          // If user tries to access a level they haven't unlocked, redirect them
+          router.push('/');
+        }
+      }
+    }
+  }, [searchParams, maxLevel, router]);
+
 
   useEffect(() => {
     const fetchUserProgress = async () => {
-      // Only fetch if we have a user and are online
       if (user && navigator.onLine) {
         const userDocRef = doc(db, 'users', user.uid);
         try {
@@ -32,8 +56,19 @@ export default function Home() {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const currentLevel = userData.currentLevel || 3;
-            setLevel(currentLevel);
-            setMaxLevel(userData.maxLevel || 3);
+            const fetchedMaxLevel = userData.maxLevel || 3;
+            
+            // Set initial level from query param if valid, otherwise from DB
+            const levelFromQuery = searchParams.get('level');
+            const queryLevel = levelFromQuery ? parseInt(levelFromQuery, 10) : NaN;
+            
+            if (!isNaN(queryLevel) && queryLevel <= fetchedMaxLevel) {
+                setLevel(queryLevel);
+            } else {
+                setLevel(currentLevel);
+            }
+            setMaxLevel(fetchedMaxLevel);
+
           } else {
             // New user, set initial data
             await setDoc(userDocRef, { 
@@ -48,21 +83,24 @@ export default function Home() {
         } catch (e) {
             console.error("Error fetching user progress:", e);
         }
+      } else if (!user && !loading) {
+         // Handle guest user state if necessary
+         setLevel(3);
+         setMaxLevel(3);
       }
     };
 
     if (!loading) {
       fetchUserProgress();
     }
-  }, [user, loading]);
+  }, [user, loading, searchParams]);
 
   const handleNextLevel = useCallback(async () => {
     const nextLevel = level + 1;
-    if (nextLevel > 10) return; // Max level check
+    if (nextLevel > 10) return; 
 
     if (user && navigator.onLine) {
         try {
-            // Save old level's score first
             const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
             const currentBestDoc = await getDoc(leaderboardDocRef);
             if (!currentBestDoc.exists() || moves < currentBestDoc.data().moves) {
@@ -75,7 +113,6 @@ export default function Home() {
                 });
             }
             
-            // Then update user's current level
             const newMaxLevel = Math.max(maxLevel, nextLevel);
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, { currentLevel: nextLevel, maxLevel: newMaxLevel }, { merge: true });
@@ -141,6 +178,11 @@ export default function Home() {
         <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
         <Link href="/leaderboard" passHref>
             <Button variant="link" size="sm">Leaderboard</Button>
+        </Link>
+      </div>
+       <div className="absolute top-4 left-4">
+        <Link href="/levels" passHref>
+          <Button variant="outline">Choose Level</Button>
         </Link>
       </div>
       <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
