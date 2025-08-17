@@ -22,12 +22,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
       </head>
       <body className="font-body antialiased h-full">
-        <DevToolsBlocker />
         <AuthProvider>
-          <React.Fragment>
-            {children}
-            <Toaster />
-          </React.Fragment>
+          <DevToolsBlocker />
+          {children}
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
