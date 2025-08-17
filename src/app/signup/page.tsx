@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -47,7 +48,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-full">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
@@ -94,11 +95,6 @@ export default function SignUp() {
             Already have an account?{" "}
             <Link href="/signin" className="underline">
               Sign In
-            </Link>
-          </p>
-          <p className="mt-4 text-center text-sm">
-            <Link href="/" className="underline">
-              Back to Home
             </Link>
           </p>
         </CardContent>

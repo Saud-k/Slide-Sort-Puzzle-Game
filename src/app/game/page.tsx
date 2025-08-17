@@ -80,21 +80,23 @@ export default function GamePage() {
   };
 
   if (loading) {
-    return <div className="flex h-screen w-full flex-col items-center justify-center">Loading...</div>;
+    return <div className="flex h-full w-full flex-col items-center justify-center">Loading...</div>;
   }
   
   return (
-    <main className="flex h-screen w-full flex-col md:flex-row p-2 sm:p-4 gap-4 md:gap-8">
+    <main className="flex h-full w-full flex-col md:flex-row p-2 sm:p-4 gap-4 md:gap-8">
       {/* Left Panel */}
       <div className="w-full md:w-64 flex flex-col gap-4 p-4 border-b md:border-b-0 md:border-r">
-        <div className="flex flex-col items-center text-center">
-            <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
-                Slide Sort
-            </CardTitle>
-            <CardDescription className="text-xs mt-1">
-                Arrange the numbers in order.
-            </CardDescription>
-        </div>
+        <Link href="/" passHref>
+          <div className="flex flex-col items-center text-center cursor-pointer">
+              <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
+                  Slide Sort
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                  Arrange the numbers in order.
+              </CardDescription>
+          </div>
+        </Link>
         
         <Separator />
 
@@ -143,9 +145,6 @@ export default function GamePage() {
             </Link>
             <Link href="/leaderboard" passHref>
                 <Button variant="secondary" className="w-full">Leaderboard</Button>
-            </Link>
-             <Link href="/" passHref>
-                <Button variant="link" size="sm" className="mt-2">Back to Home</Button>
             </Link>
         </div>
       </div>
