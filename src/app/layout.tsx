@@ -5,6 +5,7 @@ import './globals.css';
 import { AuthProvider } from '@/hooks/use-auth';
 import { Toaster } from '@/components/ui/toaster';
 import { DevToolsBlocker } from '@/components/dev-tools-blocker';
+import React from 'react';
 
 export default function RootLayout({
   children,
@@ -23,8 +24,10 @@ export default function RootLayout({
       <body className="font-body antialiased h-full">
         <DevToolsBlocker />
         <AuthProvider>
-          {children}
-          <Toaster />
+          <React.Fragment>
+            {children}
+            <Toaster />
+          </React.Fragment>
         </AuthProvider>
       </body>
     </html>
