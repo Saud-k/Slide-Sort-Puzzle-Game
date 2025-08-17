@@ -1,14 +1,15 @@
+
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  "projectId": "slide-sort-puzzle",
-  "appId": "1:177874718666:web:9db385bdc9e93f7c160933",
-  "storageBucket": "slide-sort-puzzle.firebasestorage.app",
-  "apiKey": "AIzaSyB15KbQN3bW3UScYbULODKoIWJdu13LiTk",
-  "authDomain": "slide-sort-puzzle.firebaseapp.com",
-  "messagingSenderId": "177874718666"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const apps = getApps();
