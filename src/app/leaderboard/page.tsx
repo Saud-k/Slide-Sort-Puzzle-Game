@@ -29,7 +29,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      if (!navigator.onLine) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
           setError("You are offline. Please connect to the internet to view the leaderboard.");
           setLoading(false);
           return;
@@ -87,8 +87,8 @@ export default function LeaderboardPage() {
   return (
     <main className="flex h-full w-full flex-col items-center p-4 md:p-6 lg:p-8">
       <header className="w-full max-w-4xl mx-auto mb-4">
-        <Link href="/game" passHref>
-          <Button variant="outline">Back to Game</Button>
+        <Link href="/" passHref>
+          <Button variant="outline">Back to Home</Button>
         </Link>
       </header>
       <Card className="w-full max-w-4xl mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">

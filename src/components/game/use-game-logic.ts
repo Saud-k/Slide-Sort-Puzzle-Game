@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -60,7 +61,6 @@ export const useGameLogic = (level: number) => {
       hole = randomNeighbor;
     }
     
-    // In rare cases, the shuffled board could be the solved one
     if (checkWin(shuffledBoard)) {
         return shuffleBoard(solvedBoard);
     }
@@ -87,16 +87,13 @@ export const useGameLogic = (level: number) => {
       return newBoard;
     })();
 
-    // Use a timeout to ensure the UI has time to show the loading state
     setTimeout(() => {
         const shuffled = shuffleBoard(solved);
         setBoard(shuffled);
         setIsInitializing(false);
-    }, 50); // A small delay is enough
+    }, 50);
   }, [shuffleBoard]);
   
-  // This effect now correctly depends on the `level` prop passed to the hook.
-  // When `level` changes on the main page, this effect will trigger a game reset.
   useEffect(() => {
     resetGame(level);
   }, [level, resetGame]);
@@ -114,12 +111,12 @@ export const useGameLogic = (level: number) => {
     const newBoard = JSON.parse(JSON.stringify(board));
     const boardSize = newBoard.length;
 
-    if (clicked.row === hole.row) { // Horizontal move
+    if (clicked.row === hole.row) {
       const direction = clicked.col < hole.col ? 1 : -1;
       for (let i = hole.col; i !== clicked.col; i -= direction) {
         newBoard[hole.row][i] = newBoard[hole.row][i - direction];
       }
-    } else { // Vertical move
+    } else {
       const direction = clicked.row < hole.row ? 1 : -1;
       for (let i = hole.row; i !== clicked.row; i -= direction) {
         newBoard[i][hole.col] = newBoard[i - direction][hole.col];

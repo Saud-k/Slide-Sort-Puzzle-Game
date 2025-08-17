@@ -37,7 +37,7 @@ export default function GamePage() {
   }, [searchParams]);
 
   const saveProgress = useCallback(async () => {
-    if (user && navigator.onLine) {
+    if (user && typeof navigator !== 'undefined' && navigator.onLine) {
         try {
             const leaderboardDocRef = doc(db, 'leaderboard', `${user.uid}_level_${level}`);
             const currentBestDoc = await getDoc(leaderboardDocRef);
@@ -85,7 +85,6 @@ export default function GamePage() {
   
   return (
     <main className="flex h-full w-full flex-col md:flex-row p-2 sm:p-4 gap-4 md:gap-8">
-      {/* Left Panel */}
       <div className="w-full md:w-64 flex flex-col gap-4 p-4 border-b md:border-b-0 md:border-r">
         <Link href="/" passHref>
           <div className="flex flex-col items-center text-center cursor-pointer">
@@ -100,7 +99,6 @@ export default function GamePage() {
         
         <Separator />
 
-        {/* User Info & Auth */}
         {user ? (
             <div className="flex flex-col items-center gap-3">
                 <Avatar className="h-16 w-16">
@@ -123,7 +121,6 @@ export default function GamePage() {
 
         <Separator />
         
-        {/* Game Stats */}
         <div className="flex flex-col items-center gap-2">
             <div className="text-lg">
                 <p>Size: <span className="font-bold">{level}x{level}</span></p>
@@ -135,7 +132,6 @@ export default function GamePage() {
 
         <Separator />
         
-        {/* Game Controls */}
         <div className="flex flex-col gap-2 mt-auto">
             <Button variant="outline" onClick={resetCurrentLevel}>
                 Reset Level
@@ -149,7 +145,6 @@ export default function GamePage() {
         </div>
       </div>
       
-      {/* Right Panel - Game Board */}
       <div className="flex-grow flex items-center justify-center">
         <Card className="w-full max-w-md mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
             <CardContent className="flex flex-col items-center justify-center p-2 md:p-4">
