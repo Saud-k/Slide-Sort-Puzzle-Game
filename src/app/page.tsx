@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -36,11 +37,11 @@ export default function HomePage() {
             The classic sliding puzzle.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 p-6 pt-0">
-          <Button onClick={handlePlayClick} className="w-full" size="lg">Play</Button>
-          <Link href="/leaderboard" passHref className="w-full">
-            <Button variant="outline" className="w-full" size="lg">Leaderboard</Button>
-          </Link>
+        <CardContent className="flex flex-col gap-4 p-6 pt-0">
+            <Button onClick={handlePlayClick} className="w-full" size="lg">Play</Button>
+            <Link href="/leaderboard" passHref className="w-full">
+                <Button variant="outline" className="w-full" size="lg">Leaderboard</Button>
+            </Link>
         </CardContent>
       </Card>
       

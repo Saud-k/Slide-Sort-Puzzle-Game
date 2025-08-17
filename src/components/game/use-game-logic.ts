@@ -11,6 +11,11 @@ export const useGameLogic = (level: number) => {
   const [moves, setMoves] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const checkWin = useCallback((currentBoard: Board): boolean => {
     if (!currentBoard.length) return false;
@@ -30,6 +35,7 @@ export const useGameLogic = (level: number) => {
   }, []);
 
   const findHole = (currentBoard: Board): Position | null => {
+    if(!currentBoard || !currentBoard.length) return null;
     const boardSize = currentBoard.length;
     for (let i = 0; i < boardSize; i++) {
       for (let j = 0; j < boardSize; j++) {
@@ -69,6 +75,8 @@ export const useGameLogic = (level: number) => {
   }, [checkWin]);
 
   const resetGame = useCallback((newLevel: number) => {
+    if (!isClient) return; 
+
     setIsInitializing(true);
     setIsWon(false);
     setMoves(0);
@@ -92,11 +100,13 @@ export const useGameLogic = (level: number) => {
         setBoard(shuffled);
         setIsInitializing(false);
     }, 50);
-  }, [shuffleBoard]);
+  }, [shuffleBoard, isClient]);
   
   useEffect(() => {
-    resetGame(level);
-  }, [level, resetGame]);
+    if (isClient) {
+      resetGame(level);
+    }
+  }, [level, resetGame, isClient]);
 
   const moveBlock = (row: number, col: number) => {
     if (isWon || isInitializing) return;
@@ -109,8 +119,7 @@ export const useGameLogic = (level: number) => {
     }
 
     const newBoard = JSON.parse(JSON.stringify(board));
-    const boardSize = newBoard.length;
-
+    
     if (clicked.row === hole.row) {
       const direction = clicked.col < hole.col ? 1 : -1;
       for (let i = hole.col; i !== clicked.col; i -= direction) {
