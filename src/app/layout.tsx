@@ -24,9 +24,11 @@ export default function RootLayout({
       <body className="font-body antialiased h-full">
         <AuthProvider>
           <React.Fragment>
-            <DevToolsBlocker />
-            {children}
-            <Toaster />
+            <DevToolsBlocker key="devtools-blocker" />
+            <div key="main-content" className="h-full w-full">
+              {children}
+            </div>
+            <Toaster key="toaster" />
           </React.Fragment>
         </AuthProvider>
       </body>
