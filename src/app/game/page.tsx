@@ -14,12 +14,11 @@ import { db } from '@/lib/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 
-export default function GamePage() {
+export default function GamePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
   const { user, loading } = useAuth();
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   const [level, setLevel] = useState(3);
@@ -27,12 +26,14 @@ export default function GamePage() {
   const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
   
   useEffect(() => {
-    const levelFromQuery = searchParams.get('level');
-    if (levelFromQuery) {
+    const levelFromQuery = searchParams?.level;
+    if (levelFromQuery && typeof levelFromQuery === 'string') {
       const newLevel = parseInt(levelFromQuery, 10);
       if (!isNaN(newLevel) && newLevel >= 3 && newLevel <= 10) {
         setLevel(newLevel);
       }
+    } else {
+        setLevel(3);
     }
   }, [searchParams]);
 
