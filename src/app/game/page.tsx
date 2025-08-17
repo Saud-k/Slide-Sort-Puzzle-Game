@@ -16,19 +16,14 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
-import { UpgradeDialog } from '@/components/game/upgrade-dialog';
-import { Sparkles } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 function Game() {
-    const { user, loading, isPro, refreshUser } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { toast } = useToast();
 
     const [level, setLevel] = useState(3);
-    const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-
+    
     const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
 
     useEffect(() => {
@@ -36,16 +31,12 @@ function Game() {
       if (levelFromQuery) {
         const newLevel = parseInt(levelFromQuery, 10);
         if (!isNaN(newLevel) && newLevel >= 3 && newLevel <= 10) {
-          if (newLevel > 7 && !isPro) {
-            router.push('/levels');
-            return;
-          }
           setLevel(newLevel);
         }
       } else {
           setLevel(3);
       }
-    }, [searchParams, isPro, router]);
+    }, [searchParams]);
 
     const saveProgress = useCallback(async () => {
       if (user && typeof navigator !== 'undefined' && navigator.onLine) {
@@ -73,12 +64,8 @@ function Game() {
       saveProgress();
       const nextLevel = level + 1;
       if (nextLevel > 10) return;
-       if (nextLevel > 7 && !isPro) {
-        setShowUpgradeDialog(true);
-        return;
-      }
       router.push(`/game?level=${nextLevel}`);
-    }, [level, saveProgress, router, isPro]);
+    }, [level, saveProgress, router]);
 
     const handlePlayAgain = useCallback(() => {
       saveProgress();
@@ -92,26 +79,6 @@ function Game() {
 
     const resetCurrentLevel = () => {
       resetGame(level);
-    };
-
-    const handleUpgrade = async () => {
-        if (!user) return;
-        try {
-            const userDocRef = doc(db, 'users', user.uid);
-            await setDoc(userDocRef, { isPro: true }, { merge: true });
-            await refreshUser(); // Refresh user data to get new isPro status
-            toast({
-                title: "Congratulations!",
-                description: "You've unlocked all premium levels.",
-            });
-            setShowUpgradeDialog(false);
-        } catch (error) {
-            toast({
-                title: "Upgrade Failed",
-                description: "Could not complete the upgrade. Please try again.",
-                variant: "destructive",
-            });
-        }
     };
 
     if (loading) {
@@ -143,7 +110,6 @@ function Game() {
                     </Avatar>
                     <div className="flex items-center gap-2">
                         <span className="font-medium text-lg">{user.displayName}</span>
-                        {isPro && <Sparkles className="w-4 h-4 text-yellow-500" />}
                     </div>
                     <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
                 </div>
@@ -172,11 +138,6 @@ function Game() {
             <Separator />
             
             <div className="flex flex-col gap-2 mt-auto">
-                {user && !isPro && (
-                  <Button variant="default" onClick={() => setShowUpgradeDialog(true)}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Upgrade to Pro
-                  </Button>
-                )}
                 <Button variant="outline" onClick={resetCurrentLevel}>
                     Reset Level
                 </Button>
@@ -211,11 +172,6 @@ function Game() {
             isLastLevel={level >= 10}
           />
         </main>
-        <UpgradeDialog
-            isOpen={showUpgradeDialog}
-            onClose={() => setShowUpgradeDialog(false)}
-            onUpgrade={handleUpgrade}
-        />
       </>
     );
 }

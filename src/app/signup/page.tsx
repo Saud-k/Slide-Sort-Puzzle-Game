@@ -32,7 +32,6 @@ export default function SignUp() {
       await setDoc(doc(db, "users", userCredential.user.uid), {
         displayName,
         email,
-        isPro: false,
       });
 
       toast({ title: "Success", description: "Account created successfully!" });
