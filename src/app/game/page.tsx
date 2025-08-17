@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, use } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GameBoard } from '@/components/game/game-board';
@@ -14,23 +14,21 @@ import { db } from '@/lib/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 
-export default function GamePage(
-    props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
-) {
-    const searchParams = use(props.searchParams);
+function Game() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [level, setLevel] = useState(3);
 
     const { board, moves, isWon, isInitializing, moveBlock, resetGame } = useGameLogic(level);
 
     useEffect(() => {
-      const levelFromQuery = searchParams?.level;
-      if (levelFromQuery && typeof levelFromQuery === 'string') {
+      const levelFromQuery = searchParams.get('level');
+      if (levelFromQuery) {
         const newLevel = parseInt(levelFromQuery, 10);
         if (!isNaN(newLevel) && newLevel >= 3 && newLevel <= 10) {
           setLevel(newLevel);
@@ -172,4 +170,12 @@ export default function GamePage(
         />
       </main>
     );
+}
+
+export default function GamePage() {
+  return (
+    <Suspense fallback={<div className="flex h-full w-full flex-col items-center justify-center">Loading Level...</div>}>
+      <Game />
+    </Suspense>
+  );
 }
