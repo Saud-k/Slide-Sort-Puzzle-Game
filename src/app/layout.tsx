@@ -22,12 +22,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full">
         <AuthProvider>
-          <React.Fragment>
-            <div key="main-content" className="h-full w-full">
-              {children}
-            </div>
-            <Toaster key="toaster" />
-          </React.Fragment>
+          <div className="h-full w-full">
+            {children}
+            <Toaster />
+          </div>
         </AuthProvider>
       </body>
     </html>
