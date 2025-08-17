@@ -16,7 +16,7 @@ export default function RootLayout({
       <head>
         <title>Slide Sort Puzzle</title>
         <meta name="description" content="A classic sliding puzzle game. Built for fun." />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/logo.ico" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
