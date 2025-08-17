@@ -2,9 +2,8 @@
 "use client";
 
 import './globals.css';
-import { AuthProvider } from '@/hooks/use-auth';
-import { Toaster } from '@/components/ui/toaster';
 import React from 'react';
+import { Providers } from './providers';
 
 export default function RootLayout({
   children,
@@ -21,12 +20,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
       </head>
       <body className="font-body antialiased h-full">
-        <AuthProvider>
-          <>
-            {children}
-            <Toaster />
-          </>
-        </AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
