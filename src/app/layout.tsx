@@ -22,10 +22,8 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full">
         <AuthProvider>
-          <div className="h-full w-full">
             {children}
             <Toaster />
-          </div>
         </AuthProvider>
       </body>
     </html>
