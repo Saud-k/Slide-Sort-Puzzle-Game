@@ -16,6 +16,7 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/logo';
 
 function Game() {
     const { user, loading } = useAuth();
@@ -91,9 +92,7 @@ function Game() {
           <div className="w-full md:w-64 flex flex-col gap-4 p-4 border-b md:border-b-0 md:border-r">
             <Link href="/" passHref>
               <div className="flex flex-col items-center text-center cursor-pointer">
-                  <CardTitle className="text-2xl md:text-3xl font-headline tracking-tight">
-                      Slide Sort
-                  </CardTitle>
+                  <Logo className="justify-center"/>
                   <CardDescription className="text-xs mt-1">
                       Arrange the numbers in order.
                   </CardDescription>

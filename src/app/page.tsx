@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Logo } from '@/components/logo';
 
 export default function HomePage() {
   const [showDialog, setShowDialog] = useState(false);
@@ -29,10 +30,8 @@ export default function HomePage() {
   return (
     <main className="flex h-screen w-full flex-col items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-sm mx-auto shadow-2xl bg-card/80 backdrop-blur-sm">
-         <CardHeader className="text-center p-6">
-          <CardTitle className="text-3xl md:text-4xl font-headline tracking-tighter">
-            Slide Sort
-          </CardTitle>
+         <CardHeader className="text-center p-6 items-center">
+          <Logo />
           <CardDescription className="text-base md:text-lg text-muted-foreground pt-2">
             The classic sliding puzzle.
           </CardDescription>
